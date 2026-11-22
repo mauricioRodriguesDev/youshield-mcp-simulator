@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouShield MCP — Simulação Funcional Interativa | YouShop 2027</title>
+<style>
+  :root {
+    --bg-dark: #070d18;
+    --card-bg: #0f1c2e;
+    --card-border: #1e3352;
+    --text-primary: #f0f6fc;
+    --text-muted: #8b9bb4;
+    --accent-green: #00e676;
+    --accent-green-dim: rgba(0, 230, 118, 0.15);
+    --accent-blue: #38bdf8;
+    --accent-blue-dim: rgba(56, 189, 248, 0.15);
+    --accent-yellow: #fbbf24;
+    --accent-red: #f87171;
+    --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    --mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font);
+  }
+
+  body {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 1180px;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 24px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-badge {
+    background: linear-gradient(135deg, #00e676, #00b0ff);
+    color: #070d18;
+    font-weight: 900;
+    font-size: 20px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  .brand-title h1 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .brand-title span {
+    color: var(--accent-green);
+  }
+
+  .brand-title p {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .candidate-badge {
+    text-align: right;
+    font-size: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    padding: 6px 14px;
+    border-radius: 20px;
+  }
+
+  .candidate-badge strong {
+    color: var(--accent-green);
+  }
+
+  /* Server Status Bar */
+  .mcp-status-bar {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .pulse-dot {
+    width: 10px;
+    height: 10px;
+    background: var(--accent-green);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent-green);
+    animation: pulse 1.8s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.8; }
+  }
+
+  .tools-list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tool-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: rgba(56, 189, 248, 0.1);
+    color: var(--accent-blue);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  /* Navigation Tabs */
+  .tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .tab-btn {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tab-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--accent-blue);
+  }
+
+  .tab-btn.active {
+    background: var(--accent-green-dim);
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+  }
+
+  /* Main Workspace Grid */
+  .workspace-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.25fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 900px) {
+    .workspace-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .badge {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .badge-blue { background: var(--accent-blue-dim); color: var(--accent-blue); }
+  .badge-green { background: var(--accent-green-dim); color: var(--accent-green); }
+  .badge-yellow { background: rgba(251, 191, 36, 0.15); color: var(--accent-yellow); }
+
+  /* Forms & Controls */
+  label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    display: block;
+    font-weight: 600;
+  }
+
+  select, input, textarea {
+    width: 100%;
+    background: #091322;
+    border: 1px solid var(--card-border);
+    color: var(--text-primary);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 14px;
+    transition: border 0.2s;
+  }
+
+  select:focus, input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent-green);
+  }
+
+  .btn {
+    background: var(--accent-green);
+    color: #070d18;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.15s, opacity 0.2s;
+  }
+
+  .btn:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+  }
+
+  .btn:active {
+    transform: translateY(0);
+  }
+
+  /* Execution Log Terminal */
+  .terminal {
+    background: #050a12;
+    border: 1px solid #142338;
+    border-radius: 8px;
+    padding: 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.5;
+    min-height: 380px;
+    max-height: 480px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .log-line {
+    display: flex;
+    gap: 8px;
+  }
+
+  .log-time {
+    color: #4a5c78;
+    user-select: none;
+  }
+
+  .log-step {
+    font-weight: 700;
+  }
+
+  .log-step.thought { color: #c084fc; }
+  .log-step.tool-call { color: var(--accent-blue); }
+  .log-step.tool-result { color: var(--accent-yellow); }
+  .log-step.resolved { color: var(--accent-green); }
+  .log-step.error { color: var(--accent-red); }
+
+  .json-snippet {
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 2px solid var(--accent-blue);
+    padding: 6px 10px;
+    margin: 4px 0;
+    border-radius: 0 4px 4px 0;
+    color: #cbd5e1;
+    font-size: 11px;
+    overflow-x: auto;
+  }
+
+  /* Resolution Action Box */
+  .action-box {
+    margin-top: 14px;
+    padding: 14px;
+    background: rgba(0, 230, 118, 0.06);
+    border: 1px solid rgba(0, 230, 118, 0.3);
+    border-radius: 8px;
+    display: none;
+  }
+
+  .action-box h4 {
+    color: var(--accent-green);
+    font-size: 13px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .action-box p {
+    font-size: 12px;
+    color: #cbd5e1;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-approve {
+    background: var(--accent-green);
+    color: #070d18;
+  }
+
+  .btn-escalate {
+    background: #1e293b;
+    color: #e2e8f0;
+    border: 1px solid #334155;
+  }
+
+  /* Architecture & Ethics Modals / Panels */
+  .panel-hidden {
+    display: none;
+  }
+
+  .arch-card {
+    background: #091322;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .arch-card h3 {
+    font-size: 13px;
+    color: var(--accent-blue);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .arch-card p {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 30px;
+    padding-top: 16px;
+    border-top: 1px solid var(--card-border);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  footer a {
+    color: var(--accent-green);
+    text-decoration: none;
+  }
+
+  footer a:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <div class="logo-badge">YS</div>
+      <div class="brand-title">
+        <h1>YouShield <span>MCP</span></h1>
+        <p>Protótipo Funcional Interativo • Desafio de Inovação YouShop 2027</p>
+      </div>
+    </div>
+    <div class="candidate-badge">
+      Candidato: <strong>Mauricio Rodrigues</strong> | Trilha: <strong>Agentes de IA (MCP)</strong>
+    </div>
+  </header>
+
+  <!-- MCP SERVER STATUS BAR -->
+  <div class="mcp-status-bar">
+    <div class="status-indicator">
+      <div class="pulse-dot"></div>
+      <span>YouShop MCP Server v1.0.4 [CONNECTED]</span>
+    </div>
+    <div class="tools-list">
+      <span class="tool-tag">tool: get_transaction_audit</span>
+      <span class="tool-tag">tool: verify_affiliate_attribution</span>
+      <span class="tool-tag">tool: check_content_delivery</span>
+      <span class="tool-tag">tool: simulate_reconciliation</span>
+    </div>
+  </div>
+
+  <!-- NAVIGATION TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('support')">
+      <span>💬</span> Copiloto de Atendimento (Suporte Resolutivo)
+    </button>
+    <button class="tab-btn" onclick="switchTab('audit')">
+      <span>🛡️</span> Agente Auditor Proativo (Antifraude & Risco)
+    </button>
+    <button class="tab-btn" onclick="switchTab('mcp-spec')">
+      <span>⚙️</span> Especificação MCP (JSON-RPC)
+    </button>
+  </div>
+
+  <!-- TAB 1: COPILOTO DE ATENDIMENTO -->
+  <div id="tab-support" class="workspace-grid">
+    <div class="card">
+      <div class="card-title">
+        <span>Simulação de Chamado de Atendimento</span>
+        <span class="badge badge-blue">Reativo / Human-in-the-Loop</span>
+      </div>
+
+      <label for="scenario-select">Selecione um caso real do ecossistema YouShop:</label>
+      <select id="scenario-select" onchange="loadScenario()">
+        <option value="access_fail">Caso 1: Comprador não recebeu acesso ao infoproduto (Pico de Lançamento)</option>
+        <option value="creator_comm">Caso 2: Creator questionando comissão não computada no link (#TX-9042)</option>
+        <option value="refund_request">Caso 3: Comprador solicitando reembolso de produto físico antes do envio</option>
+      </select>
+
+      <label for="ticket-message">Mensagem do Usuário / Ticket:</label>
+      <textarea id="ticket-message" rows="3" readonly></textarea>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>
+          <label>ID da Transação / Usuário:</label>
+          <input type="text" id="target-id" readonly>
+        </div>
+        <div>
+          <label>Canal de Origem:</label>
+          <input type="text" id="target-channel" readonly>
+        </div>
+      </div>
+
+      <button class="btn" onclick="runSupportAgent()">
+        <span>⚡</span> Executar Agente com Ferramentas MCP
+      </button>
+
+      <div id="action-box-support" class="action-box">
+        <h4><span>✓</span> Resolução Sugerida com Governança</h4>
+        <p id="action-desc"></p>
+        <div class="action-buttons">
+          <button class="btn-sm btn-approve" onclick="approveAction()">Aprovar Ação (1 Clique)</button>
+          <button class="btn-sm btn-escalate" onclick="escalateAction()">Escalar p/ Operador Humano</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span>Raciocínio Agêntico & Chamadas MCP</span>
+        <span class="badge badge-green">Live Log</span>
+      </div>
+      <div class="terminal" id="support-terminal">
+        <div class="log-line">
+          <span class="log-time">[00:00:00]</span>
+          <span class="log-step">Pronto. Selecione um cenário à esquerda e clique em Executar.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: AUDITOR PROATIVO -->
+  <div id="tab-audit" class="workspace-grid panel-hidden">
+    <div class="card">
+      <div class="card-title">
+        <span>Monitoramento Proativo de Risco & Afiliados</span>
+        <span class="badge badge-yellow">Proativo / Prevenção de Chargebacks</span>
+      </div>
+
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px; line-height: 1.4;">
+        O Agente Auditor roda em background monitorando o fluxo de checkout e links de divulgação para identificar anomalias antes da liquidação financeira ou contestação da bandeira.
+      </p>
+
+      <label>Selecione um fluxo para escanear:</label>
+      <select id="audit-scenario">
+        <option value="affiliate_fraud">Lote A: Link de Creator com pico anormal de conversão e cartões virtuais</option>
+        <option value="chargeback_spike">Lote B: Lote de 50 compras físicas com endereço divergente e alta velocidade</option>
+        <option value="normal_flow">Lote C: Tráfego orgânico regular de produtor consolidado</option>
+      </select>
+
+      <button class="btn" onclick="runAuditAgent()">
+        <span>🛡️</span> Auditar Lote Transacional via MCP
+      </button>
+
+      <div id="action-box-audit" class="action-box">
+        <h4><span>⚠️</span> Parecer de Auditoria & Ação Preventiva</h4>
+        <p id="audit-desc"></p>
+        <div class="action-buttons">
+          <button class="btn-sm btn-approve" onclick="approveAuditLock()">Aplicar Pausa Cautelar de Saque</button>
+          <button class="btn-sm btn-escalate" onclick="request3DS()">Exigir Desafio 3DS / Documento</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span>Pipeline de Auditoria & Análise de Anomalias</span>
+        <span class="badge badge-yellow">Risk Stream</span>
+      </div>
+      <div class="terminal" id="audit-terminal">
+        <div class="log-line">
+          <span class="log-time">[00:00:00]</span>
+          <span class="log-step">Pronto para varredura. Selecione o lote e execute a auditoria.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: MCP SPECIFICATION -->
+  <div id="tab-mcp-spec" class="panel-hidden">
+    <div class="card">
+      <div class="card-title">
+        <span>Arquitetura do Servidor MCP da YouShop</span>
+        <span class="badge badge-blue">Model Context Protocol Specification</span>
+      </div>
+
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+        O Model Context Protocol (MCP) padroniza a troca de informações entre os LLMs da YouShop e os microsserviços internos. Ele impede alucinações forçando contratos tipados de entrada/saída via JSON-RPC.
+      </p>
+
+      <div class="arch-card">
+        <h3><span>📦</span> 1. Ferramenta: check_content_delivery</h3>
+        <p>Valida o status da entrega do infoproduto nas áreas de membros integradas, checando webhooks e status HTTP de entrega.</p>
+        <div class="json-snippet">
+{
+  "name": "check_content_delivery",
+  "description": "Verifica se as credenciais de acesso foram despachadas para o comprador",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "transaction_id": { "type": "string" },
+      "buyer_email": { "type": "string" }
+    },
+    "required": ["transaction_id", "buyer_email"]
+  }
+}
+        </div>
+      </div>
+
+      <div class="arch-card">
+        <h3><span>🔗</span> 2. Ferramenta: verify_affiliate_attribution</h3>
+        <p>Cruza o histórico de cliques, cookies de sessão e a atribuição de split de pagamento da YouShop para auditar comissões.</p>
+        <div class="json-snippet">
+{
+  "name": "verify_affiliate_attribution",
+  "description": "Audita o caminho de atribuição do creator e valida a regra de comissionamento",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "creator_id": { "type": "string" },
+      "transaction_id": { "type": "string" }
+    },
+    "required": ["creator_id", "transaction_id"]
+  }
+}
+        </div>
+      </div>
+
+      <div class="arch-card">
+        <h3><span>🛡️</span> 3. Ferramenta: get_transaction_audit</h3>
+        <p>Audita os logs transacionais no gateway de pagamento (adquirente, status de liquidação, risco de antifraude e histórico de chargeback).</p>
+        <div class="json-snippet">
+{
+  "name": "get_transaction_audit",
+  "description": "Retorna o dossiê transacional completo sem expor dados sensíveis de cartão",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "transaction_id": { "type": "string" },
+      "include_risk_score": { "type": "boolean" }
+    },
+    "required": ["transaction_id"]
+  }
+}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>
+      Desenvolvido por <strong>Mauricio Rodrigues Alves Raquel</strong> • Candidato ao Programa de Estágio YouShop 2027
+    </div>
+    <div>
+      <a href="https://github.com/mauricioRodriguesDev" target="_blank">GitHub</a> • 
+      <a href="https://www.linkedin.com/in/mauriciorodrigues-exe" target="_blank">LinkedIn</a> • 
+      <span>Arquitetura Context-as-Code & MCP</span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  // Scenarios Data
+  const scenarios = {
+    access_fail: {
+      message: "Comprei o curso 'Método Venda Digital' há 40 minutos pelo cartão, o pagamento foi aprovado no banco mas não recebi nenhum e-mail com meu acesso. Quero cancelar se não me mandarem!",
+      targetId: "TX-2026-88194 (Comprador: lucas.vendas@email.com)",
+      channel: "WhatsApp Suporte Comprador",
+      logs: [
+        { type: "thought", text: "Cliente relatando falta de acesso após compra aprovada. Risco iminente de chargeback por insatisfação. Vou acionar check_content_delivery para verificar o despacho na área de membros." },
+        { type: "tool-call", text: "MCP call -> check_content_delivery(transaction_id: 'TX-2026-88194', buyer_email: 'lucas.vendas@email.com')" },
+        { type: "tool-result", text: "MCP result <- { status: 'WEBHOOK_FAILURE', error_code: 'TIMEOUT_504', provider: 'MemberAreaHub', email_sent: false, access_token: 'MBR-99214-TOK' }" },
+        { type: "thought", text: "Causa identificada: A área de membros externa deu timeout no webhook durante o pico de lançamento. O pagamento está 100% compensado. Posso forçar o reenvio das credenciais via servidor MCP." },
+        { type: "tool-call", text: "MCP call -> dispatch_credentials_fallback(transaction_id: 'TX-2026-88194', channel: 'WhatsApp + Email')" },
+        { type: "tool-result", text: "MCP result <- { success: true, dispatched_to: ['lucas.vendas@email.com', '+552199881122'], delivered_at: '2026-11-17T21:05:12Z' }" },
+        { type: "resolved", text: "RESOLVIDO: Credenciais reenviadas com sucesso em 2.4s. Mensagem acolhedora estruturada para o cliente explicando a estabilização." }
+      ],
+      action: "As credenciais de acesso foram geradas e enviadas diretamente via WhatsApp e E-mail. Falha do webhook externo contornada sem intervenção manual de engenharia."
+    },
+    creator_comm: {
+      message: "Fiz uma venda ontem às 23h pelo meu link de afiliado do produto 'Suplemento Alpha' (#TX-9042) e a comissão de R$ 180 não entrou no meu dashboard de creator. O que aconteceu?",
+      targetId: "CREATOR-771 (@marcos_fit) / TX-9042",
+      channel: "Chat Interno do Creator",
+      logs: [
+        { type: "thought", text: "Creator questionando comissão de venda divulgada. Vou auditar a atribuição da transação TX-9042 via verify_affiliate_attribution." },
+        { type: "tool-call", text: "MCP call -> verify_affiliate_attribution(creator_id: 'CREATOR-771', transaction_id: 'TX-9042')" },
+        { type: "tool-result", text: "MCP result <- { click_tracked: true, cookie_expiration: 'VALID', split_status: 'HELD_FOR_CLEARANCE', hold_reason: 'FIRST_PAYMENT_CLEARANCE_RULE_48H', commission_amount: 180.00 }" },
+        { type: "thought", text: "A comissão foi atribuída corretamente ao creator, porém está na janela padrão de 48h de compensação de segurança do primeiro saque. Nenhuma comissão foi perdida." },
+        { type: "resolved", text: "RESOLVIDO: Resposta clara gerada com extrato auditado, demonstrando ao creator a data exata da liberação (amanhã às 14h), garantindo total transparência." }
+      ],
+      action: "Comissão auditada com sucesso: R$ 180,00 confirmados e atribuídos. Regra de segurança de 48h explicada detalhadamente para reter o creator e evitar abertura de tickets."
+    },
+    refund_request: {
+      message: "Gostaria de cancelar o pedido #TX-5511 de produtos físicos pois informei o endereço errado no momento do checkout.",
+      targetId: "TX-5511 (Comprador: carla.m@email.com)",
+      channel: "E-mail de Suporte",
+      logs: [
+        { type: "thought", text: "Comprador solicitando cancelamento por erro de endereço antes do envio. Vou verificar o status logístico e transacional via get_transaction_audit." },
+        { type: "tool-call", text: "MCP call -> get_transaction_audit(transaction_id: 'TX-5511')" },
+        { type: "tool-result", text: "MCP result <- { product_type: 'PHYSICAL', shipping_status: 'PREPARING_PACKAGE', label_printed: false, can_update_address: true, refundable: true }" },
+        { type: "thought", text: "O pacote ainda não foi despachado! Em vez de perder a venda com estorno, o agente pode oferecer a retificação do endereço imediatamente ou o cancelamento sem atrito." },
+        { type: "resolved", text: "RESOLVIDO: Opção de retificação de endereço apresentada em 1 clique ou estorno automático preparado para aprovação do operador." }
+      ],
+      action: "Venda salva preventivamente: formulário seguro de retificação de endereço enviado ao comprador antes do despacho da mercadoria."
+    }
+  };
+
+  const auditScenarios = {
+    affiliate_fraud: {
+      logs: [
+        { type: "thought", text: "Iniciando varredura em 25 transações vinculadas à campanha do Creator ID #4092..." },
+        { type: "tool-call", text: "MCP call -> get_transaction_audit(batch_id: 'BATCH-2026-11-17', creator_id: '4092')" },
+        { type: "tool-result", text: "MCP result <- { total_transactions: 25, velocity: '8.4 tx/min', unique_ips: 1, unique_devices: 1, cards_issuer: 'VIRTUAL_PREPAID_CARDS', bin_cluster: '542188' }" },
+        { type: "error", text: "ALERTA CRÍTICO: Anomalia gravíssima detectada! 25 compras aprovadas originadas de um único IP em 3 minutos utilizando cartões pré-pagos gerados em massa." },
+        { type: "thought", text: "Padrão clássico de teste de cartões clonados via link de afiliado para extração indevida de split de comissão. Risco de chargeback: 98%." },
+        { type: "resolved", text: "AÇÃO MCP EXECUTADA: Bloqueio cautelar imediato do link de afiliação e retenção preventiva de R$ 4.500,00 em saldo a liquidar." }
+      ],
+      desc: "Fraude de teste de cartões detectada e neutralizada antes da compensação bancária. Prejuízo evitado: R$ 4.500,00 em chargebacks e penalidades de bandeira."
+    },
+    chargeback_spike: {
+      logs: [
+        { type: "thought", text: "Analisando histórico de entregas e contestações das últimas 24 horas no produto físico 'Smart Tracker'..." },
+        { type: "tool-call", text: "MCP call -> get_transaction_audit(product_id: 'PROD-998', metric: 'CHARGEBACK_PROBABILITY')" },
+        { type: "tool-result", text: "MCP result <- { active_orders: 140, transport_delay_reported: true, carrier: 'LogExp', delayed_orders: 38 }" },
+        { type: "thought", text: "Detectado atraso na transportadora LogExp afetando 38 pedidos. Risco de onda de chargebacks em 48h por falta de rastreio atualizado." },
+        { type: "resolved", text: "AÇÃO PROATIVA SUGERIDA: Disparar notificação proativa via WhatsApp para os 38 compradores informando a nova data e oferecendo cupom de R$ 20,00." }
+      ],
+      desc: "Ação preventiva contra onda de contestações: 38 compradores notificados proativamente antes que o atraso logístico vire reclamação ou chargeback."
+    },
+    normal_flow: {
+      logs: [
+        { type: "thought", text: "Executando auditoria contínua de rotina em transações de checkout (Lote C)..." },
+        { type: "tool-call", text: "MCP call -> get_transaction_audit(batch_id: 'ORGANIC-CHECKOUT-BATCH')" },
+        { type: "tool-result", text: "MCP result <- { inspected: 120, approval_rate: '91.2%', chargeback_rate: '0.12%', anomaly_score: 0.02 }" },
+        { type: "resolved", text: "SITUAÇÃO NORMAL: Saúde transacional excelente. Nenhuma anomalia ou risco detectado." }
+      ],
+      desc: "Auditoria concluída: 120 transações validadas com índice de normalidade de 99.8%. Roteamento de pagamento operando com eficiência máxima."
+    }
+  };
+
+  function loadScenario() {
+    const sel = document.getElementById('scenario-select').value;
+    const data = scenarios[sel];
+    document.getElementById('ticket-message').value = data.message;
+    document.getElementById('target-id').value = data.targetId;
+    document.getElementById('target-channel').value = data.channel;
+    document.getElementById('action-box-support').style.display = 'none';
+    const term = document.getElementById('support-terminal');
+    term.innerHTML = `<div class="log-line"><span class="log-time">[00:00:00]</span><span class="log-step">Cenário carregado. Clique em 'Executar Agente com Ferramentas MCP'.</span></div>`;
+  }
+
+  function runSupportAgent() {
+    const sel = document.getElementById('scenario-select').value;
+    const data = scenarios[sel];
+    const term = document.getElementById('support-terminal');
+    term.innerHTML = '';
+    document.getElementById('action-box-support').style.display = 'none';
+
+    let delay = 0;
+    data.logs.forEach((log, index) => {
+      setTimeout(() => {
+        const time = new Date().toTimeString().split(' ')[0];
+        const line = document.createElement('div');
+        line.className = 'log-line';
+        line.innerHTML = `
+          <span class="log-time">[${time}]</span>
+          <span class="log-step ${log.type}">${log.text}</span>
+        `;
+        term.appendChild(line);
+        term.scrollTop = term.scrollHeight;
+
+        if (index === data.logs.length - 1) {
+          document.getElementById('action-desc').innerText = data.action;
+          document.getElementById('action-box-support').style.display = 'block';
+        }
+      }, delay);
+      delay += 800;
+    });
+  }
+
+  function runAuditAgent() {
+    const sel = document.getElementById('audit-scenario').value;
+    const data = auditScenarios[sel];
+    const term = document.getElementById('audit-terminal');
+    term.innerHTML = '';
+    document.getElementById('action-box-audit').style.display = 'none';
+
+    let delay = 0;
+    data.logs.forEach((log, index) => {
+      setTimeout(() => {
+        const time = new Date().toTimeString().split(' ')[0];
+        const line = document.createElement('div');
+        line.className = 'log-line';
+        line.innerHTML = `
+          <span class="log-time">[${time}]</span>
+          <span class="log-step ${log.type}">${log.text}</span>
+        `;
+        term.appendChild(line);
+        term.scrollTop = term.scrollHeight;
+
+        if (index === data.logs.length - 1) {
+          document.getElementById('audit-desc').innerText = data.desc;
+          document.getElementById('action-box-audit').style.display = 'block';
+        }
+      }, delay);
+      delay += 750;
+    });
+  }
+
+  function approveAction() {
+    alert("✓ Ação aprovada com sucesso! O servidor MCP registrou a auditoria com SHA-256 e o ticket foi arquivado.");
+  }
+
+  function escalateAction() {
+    alert("⚠️ Chamado encaminhado com dossiê técnico pré-preenchido para o time de Operações.");
+  }
+
+  function approveAuditLock() {
+    alert("🛡️ Pausa cautelar no saldo do afiliado aplicada com sucesso no banco de dados.");
+  }
+
+  function request3DS() {
+    alert("🔐 Desafio 3DS / Validação de Identidade ativado para novas compras deste cluster.");
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-support').classList.add('panel-hidden');
+    document.getElementById('tab-audit').classList.add('panel-hidden');
+    document.getElementById('tab-mcp-spec').classList.add('panel-hidden');
+
+    if (tab === 'support') {
+      event.currentTarget.classList.add('active');
+      document.getElementById('tab-support').classList.remove('panel-hidden');
+    } else if (tab === 'audit') {
+      event.currentTarget.classList.add('active');
+      document.getElementById('tab-audit').classList.remove('panel-hidden');
+    } else if (tab === 'mcp-spec') {
+      event.currentTarget.classList.add('active');
+      document.getElementById('tab-mcp-spec').classList.remove('panel-hidden');
+    }
+  }
+
+  // Initialize
+  loadScenario();
+</script>
+
+</body>
+</html>
