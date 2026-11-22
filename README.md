@@ -32,23 +32,10 @@ A aplicação foi construída com **HTML5, CSS3 e JavaScript puro (Vanilla JS)**
 
 Caso prefira rodar o projeto localmente na sua máquina:
 
-### Opção 1: Execução Direta
+### Execução Direta
 1. Clone ou baixe este repositório.
 2. Dê um duplo clique no arquivo `index.html` (ou clique com o botão direito e selecione seu navegador de preferência: Chrome, Edge, Firefox ou Safari).
 
-### Opção 2: Servidor Local (Opcional)
-Se preferir servir via HTTP local:
-
-```bash
-# Com Python 3
-python -m http.server 8000
-
-# Ou com Node.js
-npx serve
-```
-Em seguida, abra o navegador e acesse: `http://localhost:8000`.
-
----
 
 ## 🛠️ Tecnologias Utilizadas
 
