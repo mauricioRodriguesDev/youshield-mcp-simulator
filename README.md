@@ -10,8 +10,7 @@
 
 A simulação pode ser testada diretamente no navegador sem necessidade de instalação:
 
-👉 **[Acessar a Simulação Online](https://SEU_USUARIO.github.io/SEU_REPOSITORIO/)**  
-*(Substitua a URL acima pelo link do seu GitHub Pages)*
+👉 **[Acessar a Simulação Online](https://mauriciorodriguesdev.github.io/youshield-mcp-simulator/)**  
 
 ---
 
